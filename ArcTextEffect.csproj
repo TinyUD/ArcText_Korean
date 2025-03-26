@@ -1,0 +1,129 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- 기본 프로젝트 설정 -->
+    <!-- YMM4 v4.26+ requires .NET 8. Using net9 might cause issues. -->
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <LangVersion>latest</LangVersion>
+
+    <!-- 플러그인 정보 -->
+    <RootNamespace>ArcText</RootNamespace>
+    <AssemblyName>ArcTextEffect</AssemblyName>
+    <Version>1.1</Version>
+    <Authors>Dolphin-kun</Authors> <!-- 실제 제작자 이름으로 변경하세요 -->
+    <Description>YukkuriMovieMaker V4용 아치 배치 효과 플러그인</Description>
+
+    <!-- 빌드 출력 경로 설정 (선택 사항) -->
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+    <!-- YMM4 실행 파일 경로 설정 (중요!) -->
+    <!-- 시스템 환경 변수 YMM_PATH를 설정하거나, 아래 경로를 실제 YMM4 설치 경로로 수정하세요. -->
+    <YmmPath Condition="'$(YMM_PATH)' != ''">$(YMM_PATH)</YmmPath>
+    <YmmPath Condition="'$(YMM_PATH)' == ''">D:\YukkuriMovieMaker\YukkuriMovieMaker4_Lite</YmmPath> <!-- ★★★ 실제 YMM4 설치 경로로 수정하세요 ★★★ -->
+    <!-- 모든 참조 DLL이 YMM 폴더에 있다고 가정합니다. -->
+    <AssemblySearchPaths>$(AssemblySearchPaths);$(YmmPath)</AssemblySearchPaths>
+
+    <!-- PDB 경로 매핑: PDB 파일 내 소스 코드의 전체 경로를 포함하지 않음 -->
+    <RepoRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))</RepoRoot>
+    <PathMap>$(RepoRoot)=.</PathMap>
+  </PropertyGroup>
+
+  <!-- Release 빌드 시 PDB 파일 생성 안 함 (선택 사항) -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <!-- YMM4 경로 및 필수 DLL 유효성 검사 -->
+  <Target Name="CheckYmmPath" BeforeTargets="BeforeBuild">
+    <Error Condition="!Exists('$(YmmPath)\YukkuriMovieMaker.exe')" Text="YukkuriMovieMaker.exe를 찾을 수 없습니다. .csproj 파일의 'YmmPath' 속성 또는 시스템 환경 변수 'YMM_PATH'를 올바른 YMM4 설치 경로로 설정하세요. 현재 설정된 경로: $(YmmPath)" />
+    <Error Condition="!Exists('$(YmmPath)\YukkuriMovieMaker.Plugin.dll')" Text="YukkuriMovieMaker.Plugin.dll을 $(YmmPath)에서 찾을 수 없습니다." />
+    <Error Condition="!Exists('$(YmmPath)\Vortice.Direct2D1.dll')" Text="Vortice.Direct2D1.dll을 $(YmmPath)에서 찾을 수 없습니다." />
+    <Error Condition="!Exists('$(YmmPath)\SharpGen.Runtime.dll')" Text="SharpGen.Runtime.dll을 $(YmmPath)에서 찾을 수 없습니다." />
+    <!-- 필요에 따라 다른 중요 DLL 검사 추가 -->
+  </Target>
+
+  <ItemGroup>
+    <!-- YMM4 참조 (YMM 폴더에서 직접 참조, 복사 안 함) -->
+    <!-- ArcTextEffect.cs 및 ArcTextEffectProcessor.cs의 'using' 문을 기반으로 필요한 모든 참조 포함 -->
+    <Reference Include="YukkuriMovieMaker">
+      <HintPath>$(YmmPath)\YukkuriMovieMaker.exe</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="YukkuriMovieMaker.Plugin">
+      <HintPath>$(YmmPath)\YukkuriMovieMaker.Plugin.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="YukkuriMovieMaker.Commons">
+      <HintPath>$(YmmPath)\YukkuriMovieMaker.Commons.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="YukkuriMovieMaker.Controls">
+      <HintPath>$(YmmPath)\YukkuriMovieMaker.Controls.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+     <Reference Include="YukkuriMovieMaker.Exo">
+      <HintPath>$(YmmPath)\YukkuriMovieMaker.Exo.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+     <Reference Include="YukkuriMovieMaker.Player">
+      <HintPath>$(YmmPath)\YukkuriMovieMaker.Player.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- Vortice 및 종속성 참조 (YMM 폴더에서 직접 참조, 복사 안 함) -->
+    <Reference Include="SharpGen.Runtime">
+      <HintPath>$(YmmPath)\SharpGen.Runtime.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SharpGen.Runtime.COM">
+      <HintPath>$(YmmPath)\SharpGen.Runtime.COM.dll</HintPath>
+      <Private>false</Private> <!-- Vortice에서 사용될 수 있음 -->
+    </Reference>
+    <Reference Include="Vortice.Direct2D1">
+      <HintPath>$(YmmPath)\Vortice.Direct2D1.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+     <Reference Include="Vortice.Direct3D11">
+      <HintPath>$(YmmPath)\Vortice.Direct3D11.dll</HintPath>
+      <Private>false</Private> <!-- D2D는 종종 D3D/DXGI와 함께 사용됨 -->
+    </Reference>
+    <Reference Include="Vortice.DirectX">
+      <HintPath>$(YmmPath)\Vortice.DirectX.dll</HintPath>
+      <Private>false</Private> <!-- Vortice.Direct2D1 등이 의존할 수 있음 -->
+    </Reference>
+    <Reference Include="Vortice.DXGI">
+      <HintPath>$(YmmPath)\Vortice.DXGI.dll</HintPath>
+      <Private>false</Private> <!-- D2D는 종종 D3D/DXGI와 함께 사용됨 -->
+    </Reference>
+    <Reference Include="Vortice.Mathematics">
+      <HintPath>$(YmmPath)\Vortice.Mathematics.dll</HintPath>
+      <Private>false</Private> <!-- 코드에서 MathF 등을 사용하므로 필요할 수 있음 -->
+    </Reference>
+    <!-- 코드에서 사용하는 다른 Vortice API가 있다면 해당 DLL 참조 추가 (예: Vortice.DirectWrite, Vortice.WIC) -->
+
+  </ItemGroup>
+
+  <!-- 빌드 후 플러그인 DLL만 YMM4의 사용자 플러그인 폴더에 복사 -->
+  <Target Name="CopyPluginFiles" AfterTargets="Build">
+    <PropertyGroup>
+      <!-- 표준 user_plugins 폴더 사용 -->
+      <PluginDestinationFolder>$(YmmPath)user_plugins\$(AssemblyName)\</PluginDestinationFolder>
+    </PropertyGroup>
+
+    <Message Text="Copying plugin DLL to $(PluginDestinationFolder)..." Importance="high" />
+
+    <!-- 대상 폴더 생성 (오류 무시하지 않음) -->
+    <MakeDir Directories="$(PluginDestinationFolder)" Condition="!Exists('$(PluginDestinationFolder)')"/>
+
+    <!-- 플러그인 DLL 복사 -->
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginDestinationFolder)" SkipUnchangedFiles="true" />
+
+    <!-- PDB 파일 복사 (디버깅 시 유용, Release 빌드 시에는 생성 안 될 수 있음) -->
+    <Copy SourceFiles="$(TargetDir)$(TargetName).pdb" DestinationFolder="$(PluginDestinationFolder)" Condition="Exists('$(TargetDir)$(TargetName).pdb')" SkipUnchangedFiles="true" />
+
+  </Target>
+
+</Project>

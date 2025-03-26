@@ -7,24 +7,24 @@ using YukkuriMovieMaker.Plugin.Effects;
 
 namespace ArcText
 {
-    [VideoEffect("アーチ配置", ["配置"], ["arch","a-tihaiti","ArTex"], isAviUtlSupported:false)]
+    [VideoEffect("아치 배치", ["배치"], ["arch","a-tihaiti","ArTex", "아치", "배치", "아치배치", "achibaechi"], isAviUtlSupported:false)]
     internal class ArcTextEffect: VideoEffectBase
     {
-        public override string Label => "アーチ配置";
+        public override string Label => "아치 배치";
 
-        [Display(GroupName = "配置", Name = "高さ", Description = "高さ")]
+        [Display(GroupName = "배치", Name = "높이", Description = "높이")]
         [AnimationSlider("F1", "px", -100, 100)]
         public Animation Height { get; } = new Animation(-100, -99999, 99999);
 
-        [Display(GroupName = "配置", Name = "中心位置", Description = "X座標の中心位置")]
+        [Display(GroupName = "배치", Name = "중심 위치", Description = "X 좌표의 중심 위치")]
         [AnimationSlider("F1", "%", -100, 100)]
         public Animation CenterXPoint { get; } = new Animation(0, -100, 100);
 
-        [Display(GroupName = "配置", Name = "角度", Description = "角度")]
+        [Display(GroupName = "배치", Name = "각도", Description = "각도")]
         [AnimationSlider("F1", "°", -90, 90)]
         public Animation Angle { get; } = new Animation(0, -3600, 3600);
 
-        [Display(GroupName = "配置", Name = "間隔", Description = "間隔")]
+        [Display(GroupName = "배치", Name = "간격", Description = "간격")]
         [AnimationSlider("F1", "px", -100, 100)]
         public Animation Interval { get; } = new Animation(0, -99999, 99999);
 
